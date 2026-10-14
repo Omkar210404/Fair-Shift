@@ -1,0 +1,65 @@
+/* Notice-board print: A4 landscape, the grid across the page, the fairness table under it. */
+
+@page { size: A4 landscape; margin: 10mm; }
+
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+html, body { background: #fff; color: #000; font-size: 9pt; }
+
+.skip-link, .masthead, .setup, .toolbar, .status, .boot-note, .empty, .grid-hint, #grid-hint,
+.warn-list .button, .picker, .how, .formula, .fairness > .hint, .legend .time:empty { display: none !important; }
+
+.print-only { display: block !important; }
+.print-head { margin-bottom: 3mm; }
+.print-head h1 { font: 600 14pt/1.2 var(--serif); }
+.print-head p { font-size: 8.5pt; color: #333; margin-top: 1mm; }
+
+.layout { display: block; padding: 0; }
+.panel { border: 0; padding: 0; background: none; }
+.roster-head { display: none; }
+
+.legend { margin: 0 0 2mm; font-size: 8pt; gap: 1mm 5mm; }
+.legend .swatch { width: 4.5mm; height: 4.5mm; font-size: 7pt; }
+
+/* 277 mm of usable width: 34 mm for names, the rest split evenly over up to 42 days. */
+.grid-scroll { overflow: visible; max-height: none; border: 0.3mm solid #999; border-radius: 0; }
+.grid { width: 100%; table-layout: fixed; }
+.grid th, .grid td { border-color: #bbb; }
+.grid thead th { position: static; height: auto; width: auto; min-width: 0; max-width: none; padding: 0.6mm 0; font-size: 6.5pt; }
+.grid thead th .dn { font-size: 7.5pt; }
+.grid th.corner, .grid th.name { position: static; width: 34mm; min-width: 0; max-width: none; padding: 0 1.5mm; }
+.grid th.name { height: auto; font-size: 7.5pt; }
+.grid td { width: auto; min-width: 0; max-width: none; height: 5.2mm; }
+.cell { height: 5.2mm; font-size: 7.5pt; cursor: default; }
+.cell.warn::after { border-width: 0 1.6mm 1.6mm 0; }
+.grid tr { break-inside: avoid; }
+
+.warnings { margin-top: 3mm; break-inside: avoid; }
+.warnings .block-title { font-size: 9pt; margin-bottom: 1mm; }
+.warn-list { max-height: none; overflow: visible; }
+.warn-list li { padding: 0.5mm 0; font-size: 7.5pt; }
+
+/* Score and explanation on the left, per-person table on the right, so one page holds it all. */
+.fairness { margin-top: 3mm; break-inside: avoid; }
+.fairness .panel-title { font-size: 10pt; }
+#fair-body:not([hidden]) {
+  display: grid; grid-template-columns: 80mm 1fr; column-gap: 8mm; align-items: start;
+}
+#fair-body > .score, #fair-body > .parts, #fair-body > .loaded { grid-column: 1; }
+#fair-body > .table-scroll { grid-column: 2; grid-row: 1 / span 4; }
+.score { margin-top: 1mm; }
+.score-num { font-size: 18pt; }
+.parts { display: flex; flex-wrap: wrap; gap: 1mm 5mm; margin-top: 1mm; font-size: 8pt; }
+.parts > div { display: flex; gap: 2mm; }
+.parts dt { font-size: 8pt; }
+.bar { display: none; }
+.loaded { margin-top: 1.5mm; font-size: 7.5pt; line-height: 1.35; }
+.table-scroll { max-height: none; overflow: visible; margin-top: 0; border-top: 0; }
+.people-table { width: auto; font-size: 7pt; line-height: 1.2; }
+.people-table th, .people-table td { padding: 0.3mm 4mm 0.3mm 0; }
+.people-table thead th { position: static; font-size: 6.5pt; }
+.people-table .n { width: auto; }
+.tag { display: inline; margin: 0 0 0 1.5mm; font-size: 6pt; }
+.row-most, .row-least { background: none; }
+.warnings .block-title { display: inline; margin-right: 2mm; }
+.warn-summary { display: inline; font-size: 8pt; }
