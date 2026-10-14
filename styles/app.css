@@ -148,12 +148,13 @@ code { font: 0.85em/1.4 ui-monospace, "Cascadia Mono", Consolas, monospace; back
 .inline { display: flex; gap: var(--s2); }
 .inline .input { flex: 1; }
 .pair { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s3); }
-.pair.tall .label { min-height: 2.6em; display: flex; align-items: flex-end; }
+.pair.tall .label { min-height: 3em; display: flex; align-items: flex-end; }
 .triple { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s2); }
 .fieldset { border: 0; padding: 0; margin: 0; }
 .fieldset > legend { padding: 0; }
 
-.times { display: grid; grid-template-columns: auto 1fr 1fr; gap: var(--s2) var(--s2); align-items: center; margin-top: var(--s3); }
+.times { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s1) var(--s2); align-items: center; margin-top: var(--s3); }
+.times .label.times-name { grid-column: 1 / -1; margin-top: var(--s2); }
 .times .label { margin: 0; }
 .times-head { font-size: 12px; color: var(--ink-3); }
 
