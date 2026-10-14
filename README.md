@@ -2,9 +2,9 @@
 
 **Rosters your whole team can call fair.**
 
-[![CI](https://github.com/Omkar210404/fairshift/actions/workflows/ci.yml/badge.svg)](https://github.com/Omkar210404/fairshift/actions/workflows/ci.yml)
+[![CI](https://github.com/Omkar210404/Fair-Shift/actions/workflows/ci.yml/badge.svg)](https://github.com/Omkar210404/Fair-Shift/actions/workflows/ci.yml)
 
-**Live demo:** https://omkar210404.github.io/fairshift/#sample (opens with the sample team loaded)
+**Live demo:** https://omkar210404.github.io/Fair-Shift/#sample (opens with the sample team loaded)
 
 Shop-floor supervisors build shift rosters by hand in Excel, so night shifts and weekends end up unevenly spread and nobody can prove it either way. fairshift builds a roster under rules you set, flags any rule that breaks, and shows a fairness score per person, so the result can be explained.
 
@@ -110,8 +110,8 @@ Found rosters scored a median of 100 and a lowest of 92. The balancing pass rais
 You need a browser. To run the tests or the sweep you also need Node 20 or later. There is nothing to install: no dependencies, no build step.
 
 ```bash
-git clone https://github.com/Omkar210404/fairshift.git
-cd fairshift
+git clone https://github.com/Omkar210404/Fair-Shift.git
+cd Fair-Shift
 python -m http.server 8000      # or any static file server
 # open http://localhost:8000/  (add #sample to start with the sample team)
 ```
