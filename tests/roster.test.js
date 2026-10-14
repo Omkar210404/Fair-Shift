@@ -290,6 +290,7 @@ describe('fairness', () => {
       ['O', 'O', 'O', 'N', 'M', 'O', 'O'],
     ];
     assert.equal(fairness(three, best).score, 100);
+    assert.equal(fairness(three, best).mostLoaded, null); // nobody singled out for an unavoidable leftover
     const worse = [
       ['N', 'O', 'N', 'N', 'M', 'O', 'O'],
       ['O', 'N', 'O', 'O', 'M', 'O', 'O'],

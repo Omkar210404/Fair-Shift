@@ -133,8 +133,11 @@ function runGenerate(newSeed) {
     state.edited = false;
     state.result = { attempts: result.attempts, swaps: result.swaps, greedyScore: result.greedyScore, score: result.score, seed: result.seed };
     const tries = result.attempts === 1 ? 'first attempt' : `attempt ${result.attempts}`;
-    state.notice = `Roster built with seed ${result.seed} (${tries}). The balancing pass made ${result.swaps} swap${result.swaps === 1 ? '' : 's'}, `
-      + `taking the score from ${result.greedyScore} to ${result.score}.${hadEdits ? ' Your manual edits were replaced.' : ''}`;
+    const swaps = `${result.swaps} swap${result.swaps === 1 ? '' : 's'}`;
+    const effect = result.score === result.greedyScore
+      ? `The balancing pass made ${swaps}; the score stayed at ${result.score}.`
+      : `The balancing pass made ${swaps}, taking the score from ${result.greedyScore} to ${result.score}.`;
+    state.notice = `Roster built with seed ${result.seed} (${tries}). ${effect}${hadEdits ? ' Your manual edits were replaced.' : ''}`;
   } else {
     state.roster = null;
     state.result = null;
@@ -210,10 +213,10 @@ function fillForms() {
 
 function buildTimeFields() {
   const box = $('times-fields');
-  box.append(el('span', { class: 'times-head' }, ''), el('span', { class: 'times-head', 'aria-hidden': 'true' }, 'Start'), el('span', { class: 'times-head', 'aria-hidden': 'true' }, 'End'));
+  box.append(el('span', { class: 'times-head', 'aria-hidden': 'true' }, 'Start'), el('span', { class: 'times-head', 'aria-hidden': 'true' }, 'End'));
   for (const s of SHIFTS) {
     box.append(
-      el('span', { class: 'label', id: `time-${s}-label` }, `${s} ${SHIFT_NAMES[s]}`),
+      el('span', { class: 'label times-name', id: `time-${s}-label` }, `${SHIFT_NAMES[s]} (${s})`),
       el('input', { class: 'input num', id: `time-${s}-start`, type: 'time', 'aria-label': `${SHIFT_NAMES[s]} start (HH:MM)` }),
       el('input', { class: 'input num', id: `time-${s}-end`, type: 'time', 'aria-label': `${SHIFT_NAMES[s]} end (HH:MM)` }),
     );
@@ -612,7 +615,7 @@ function renderFairness() {
       + `${person.weekends} weekend days (${fmt(person.share.weekends)}), ${person.total} shifts (${fmt(person.share.total)})`;
   };
   $('loaded').textContent = f.mostLoaded === null
-    ? 'Everyone carries exactly their fair share.'
+    ? 'As even as whole shifts allow. Any difference left is a shift that had to go to someone, so nobody is marked as most or least loaded.'
     : `Most loaded, ${describe(f.mostLoaded)}. Least loaded, ${describe(f.leastLoaded)}. `
       + 'Load is measured against each person\'s fair share with the same weights as the score.';
 

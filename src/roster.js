@@ -745,9 +745,10 @@ function fairnessCtx(ctx, roster) {
     return { name: ctx.people[p].name, ...c, share, load };
   });
 
+  // Nobody is singled out when every remaining difference is the unavoidable leftover.
   let mostLoaded = null;
   let leastLoaded = null;
-  if (people.length > 1) {
+  if (people.length > 1 && exact < 100 - 1e-9) {
     let hi = 0;
     let lo = 0;
     people.forEach((person, p) => {
