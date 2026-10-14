@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="description" content="fairshift builds shift rosters under clear rules and shows a fairness score per person. Everything stays in your browser.">
+  <title>fairshift</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles/app.css">
+  <link rel="stylesheet" href="styles/print.css" media="print">
+  <script type="module" src="src/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#roster">Skip to the roster</a>
+
+  <header class="masthead">
+    <div class="brand">
+      <h1 class="wordmark">fairshift</h1>
+      <p class="tagline">Rosters your whole team can call fair.</p>
+    </div>
+    <p class="privacy">Everything stays in this browser. Nothing is sent anywhere.</p>
+  </header>
+
+  <div class="print-head print-only" id="print-head"></div>
+
+  <main class="layout">
+    <!-- Setup -->
+    <aside class="panel setup" aria-labelledby="setup-title">
+      <details class="setup-fold" open>
+        <summary><h2 id="setup-title" class="panel-title">Setup</h2></summary>
+
+        <form class="block" id="team-form" novalidate>
+          <h3 class="block-title">Team</h3>
+          <ul class="team-list" id="team-list" aria-label="Team members"></ul>
+
+          <label class="label" for="add-name">Add a person</label>
+          <div class="inline">
+            <input class="input" id="add-name" type="text" maxlength="40" autocomplete="off" aria-describedby="add-errors">
+            <button class="button" type="button" id="add-button">Add</button>
+          </div>
+          <div class="field-errors" id="add-errors" role="alert"></div>
+
+          <label class="label" for="team-text">Team as text</label>
+          <p class="hint" id="team-format">
+            One person per line. Add leave after a colon, as dates or ranges:
+            <code>Asha Sample: 2026-11-05, 2026-11-10 to 2026-11-12</code>.
+            Names without leave can share a line, separated by commas.
+          </p>
+          <textarea class="input textarea" id="team-text" rows="7" spellcheck="false" aria-describedby="team-format team-errors"></textarea>
+          <div class="field-errors" id="team-errors" role="alert"></div>
+          <button class="button" type="submit">Set team</button>
+        </form>
+
+        <form class="block" id="dates-form" novalidate>
+          <h3 class="block-title">Dates</h3>
+          <div class="pair">
+            <div>
+              <label class="label" for="start-date">Start date</label>
+              <input class="input" id="start-date" type="date" required>
+            </div>
+            <div>
+              <label class="label" for="weeks">Weeks (1 to 6)</label>
+              <input class="input num" id="weeks" type="number" min="1" max="6" step="1" required>
+            </div>
+          </div>
+          <p class="hint">Weeks are 7-day blocks counted from the start date. Saturday and Sunday count as the weekend.</p>
+          <div class="field-errors" id="dates-errors" role="alert"></div>
+          <button class="button" type="submit">Set dates</button>
+        </form>
+
+        <form class="block" id="times-form" novalidate>
+          <h3 class="block-title">Shift times</h3>
+          <p class="hint">For display and print only. Format HH:MM.</p>
+          <div class="times" id="times-fields"></div>
+          <div class="field-errors" id="times-errors" role="alert"></div>
+          <button class="button" type="submit">Set times</button>
+        </form>
+
+        <form class="block" id="rules-form" novalidate>
+          <h3 class="block-title">Rules</h3>
+          <fieldset class="fieldset">
+            <legend class="label">Minimum people per shift, each day</legend>
+            <div class="triple">
+              <div><label class="label small" for="min-M">Morning</label><input class="input num" id="min-M" type="number" min="0" max="50" step="1"></div>
+              <div><label class="label small" for="min-A">Afternoon</label><input class="input num" id="min-A" type="number" min="0" max="50" step="1"></div>
+              <div><label class="label small" for="min-N">Night</label><input class="input num" id="min-N" type="number" min="0" max="50" step="1"></div>
+            </div>
+          </fieldset>
+          <div class="pair tall">
+            <div>
+              <label class="label" for="max-days">Max working days in a row</label>
+              <input class="input num" id="max-days" type="number" min="1" max="14" step="1">
+            </div>
+            <div>
+              <label class="label" for="max-nights">Max nights in a row</label>
+              <input class="input num" id="max-nights" type="number" min="1" max="14" step="1">
+            </div>
+          </div>
+          <label class="check"><input type="checkbox" id="rest-rule"> No Morning right after a Night</label>
+          <label class="check"><input type="checkbox" id="weekly-off"> At least one day off each week</label>
+          <p class="hint">Each shift is staffed with exactly the minimum; everyone else is off. Whole numbers only.</p>
+          <div class="field-errors" id="rules-errors" role="alert"></div>
+          <button class="button" type="submit">Set rules</button>
+        </form>
+
+        <div class="block">
+          <h3 class="block-title">Data</h3>
+          <button class="button" type="button" id="load-sample">Load sample team</button>
+          <p class="hint">12 made-up names over 4 weeks, with a few leave days.</p>
+          <label class="check"><input type="checkbox" id="remember"> Remember on this device</label>
+          <p class="hint" id="remember-note">Off by default. Do not save real staff data on a shared computer.</p>
+          <button class="button quiet" type="button" id="clear-all">Clear everything</button>
+        </div>
+      </details>
+    </aside>
+
+    <!-- Roster -->
+    <section class="panel roster-area" id="roster" aria-labelledby="roster-title" tabindex="-1">
+      <div class="roster-head">
+        <div>
+          <h2 id="roster-title" class="panel-title">Roster</h2>
+          <p class="range" id="range"></p>
+        </div>
+        <div class="toolbar" role="group" aria-label="Roster actions">
+          <button class="button primary" type="button" id="generate">Generate</button>
+          <button class="button" type="button" id="regenerate">Regenerate</button>
+          <button class="button" type="button" id="export-csv">Export CSV</button>
+          <button class="button" type="button" id="print">Print</button>
+        </div>
+      </div>
+
+      <p class="boot-note" id="boot-note">
+        The app script did not load. If you opened index.html straight from your disk in Chrome or Edge,
+        those browsers block it; use the live demo or run a small local server (see the README).
+      </p>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+      <div class="failure" id="failure" role="alert" hidden></div>
+
+      <div class="empty" id="empty" hidden>
+        <h3 class="empty-title">No team yet</h3>
+        <p>Add names in Setup, or start with the sample team to see how it works.</p>
+        <button class="button primary" type="button" id="empty-sample">Load sample team</button>
+      </div>
+
+      <div id="grid-wrap" hidden>
+        <ul class="legend" id="legend" aria-label="Shift key"></ul>
+        <div class="grid-scroll" id="grid-scroll">
+          <table class="grid" id="grid" role="grid" aria-labelledby="roster-title"></table>
+        </div>
+        <p class="hint" id="grid-hint"></p>
+
+        <section class="warnings" aria-labelledby="warn-title">
+          <h3 class="block-title" id="warn-title">Rule check</h3>
+          <p class="warn-summary" id="warn-summary"></p>
+          <ol class="warn-list" id="warn-list"></ol>
+        </section>
+      </div>
+    </section>
+
+    <!-- Fairness -->
+    <aside class="panel fairness" aria-labelledby="fair-title">
+      <h2 id="fair-title" class="panel-title">Fairness</h2>
+      <p class="hint" id="fair-empty">Generate a roster to see how evenly nights, weekends and shifts are shared.</p>
+      <div id="fair-body" hidden>
+        <div class="score">
+          <span class="score-num" id="score"></span>
+          <span class="score-of">out of 100</span>
+        </div>
+        <dl class="parts" id="parts"></dl>
+        <p class="loaded" id="loaded"></p>
+        <div class="table-scroll">
+          <table class="people-table">
+            <caption class="visually-hidden">Shifts per person</caption>
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col" class="n">Nights</th>
+                <th scope="col" class="n">Weekend days</th>
+                <th scope="col" class="n">Shifts</th>
+              </tr>
+            </thead>
+            <tbody id="people-body"></tbody>
+          </table>
+        </div>
+        <details class="formula">
+          <summary>How the score is worked out</summary>
+          <p>Three things are counted for each person: nights, weekend days worked, and total shifts.</p>
+          <p>Each person's <strong>fair share</strong> is the team's total split in proportion to the days they could work (days not on leave). With no leave, that is simply the team average.</p>
+          <p>For each of the three, add up how far every person is from their fair share, and divide by the team total. That gap is 0 when everyone has exactly their share. The part score is 100 minus the gap as a percentage, and never goes below 0.</p>
+          <p>The overall score is 40% nights, 40% weekend days and 20% total shifts, rounded to a whole number.</p>
+          <p>When shifts cannot be split exactly (85 nights among 12 people), even the best roster scores a little under 100.</p>
+        </details>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="how" id="how">
+    <h2 class="panel-title">How it works</h2>
+    <div class="how-grid">
+      <p><strong>1. Set up.</strong> Enter the team, dates, shift times and rules. Each section changes only when you press its Set button.</p>
+      <p><strong>2. Generate.</strong> fairshift fills each day in turn, giving each place to the eligible person who has done the least of that kind of work. A balancing pass then swaps shifts within a day when that makes the roster fairer without breaking a rule. The same inputs and seed always give the same roster; Regenerate tries a new seed.</p>
+      <p><strong>3. Check and share.</strong> Click any cell to change it. Broken rules are flagged on the cell and listed under the grid. Export a CSV or print it for the notice board.</p>
+      <p><strong>Limits.</strong> This is a planning aid. It does not check labour-law compliance; the limits are the ones you enter. The method is a heuristic, so it does not promise the fairest possible roster, and if it cannot find one it says so instead of breaking a rule.</p>
+    </div>
+  </footer>
+
+  <div class="picker" id="picker" role="menu" hidden></div>
+</body>
+</html>
