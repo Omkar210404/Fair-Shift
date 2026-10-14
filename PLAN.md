@@ -116,9 +116,12 @@ Fair share. The team's total is split in proportion to the days each person coul
 Part score, worked the same way for each of the three counts:
 
 ```
-gap        = sum over people of | actual - fair share |
-part score = 100 x (1 - gap / team total), never below 0
+gap         = sum over people of | actual - fair share |
+unavoidable = the gap of the best whole-number split (shares rounded, leftovers to the largest remainders)
+part score  = 100 x (1 - (gap - unavoidable) / team total), never below 0
 ```
+
+The "unavoidable" term was added during the build. The sweep in `tools/sweep.js` showed a correct roster scoring 0 when 7 shifts were shared by 22 people, because most people must get 0 and some 1. Not counting what whole shifts make unavoidable fixed that, and 100 now means "as even as whole shifts allow".
 
 Example: 12 people, 84 nights, fair share 7 each. If everyone has 7, the gap is 0 and the part score is 100. If six people do 14 each and six do none, the gap is 84 and the part score is 0.
 
@@ -134,7 +137,7 @@ The balancing pass lowers the same weighted gap, so the pass and the score alway
 
 Most and least loaded: the person furthest above and furthest below their fair share, using the same weights. If everyone is level, nobody is highlighted.
 
-Known limit, shown in the UI and README: when the shifts do not divide evenly (85 nights among 12 people), even the best roster scores a little under 100.
+When the shifts do not divide evenly (85 nights among 12 people), the best possible split still scores 100, because the leftover night has to go to someone.
 
 ## 5. UI layout
 

@@ -699,6 +699,25 @@ function personGap(totals, fractions, p, c) {
   return gap;
 }
 
+// The smallest gap any roster could reach, because shifts come in whole numbers: give everyone
+// their fair share rounded down, then hand the leftover shifts to the largest remainders.
+export function unavoidableGap(total, shares) {
+  const floors = shares.map(Math.floor);
+  const rest = shares.map((s, i) => s - floors[i]);
+  let leftover = Math.round(total - floors.reduce((a, b) => a + b, 0));
+  const order = rest.map((r, i) => i).sort((a, b) => rest[b] - rest[a] || a - b);
+  let gap = 0;
+  for (const i of order) {
+    if (leftover > 0 && rest[i] > 0) {
+      gap += 1 - rest[i];
+      leftover--;
+    } else {
+      gap += rest[i];
+    }
+  }
+  return gap;
+}
+
 function fairnessCtx(ctx, roster) {
   const counts = countsFor(ctx, roster);
   const fractions = shareFractions(ctx, roster);
@@ -708,9 +727,11 @@ function fairnessCtx(ctx, roster) {
   const parts = {};
   for (const m of MEASURES) {
     const T = totals[m.key];
+    const shares = counts.map((_, p) => T * fractions[m.share][p]);
     let gap = 0;
-    for (let p = 0; p < ctx.P; p++) gap += Math.abs(counts[p][m.key] - T * fractions[m.share][p]);
-    parts[m.key] = T > 0 ? 100 * Math.max(0, 1 - gap / T) : 100;
+    for (let p = 0; p < ctx.P; p++) gap += Math.abs(counts[p][m.key] - shares[p]);
+    const avoidable = Math.max(0, gap - unavoidableGap(T, shares));
+    parts[m.key] = T > 0 ? 100 * Math.max(0, 1 - avoidable / T) : 100;
   }
   const exact = MEASURES.reduce((s, m) => s + WEIGHTS[m.key] * parts[m.key], 0);
 

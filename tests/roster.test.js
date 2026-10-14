@@ -2,7 +2,7 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   buildDays, parseTeam, formatTeam, checkInput, checkFeasibility, generate, validate, fairness, toCSV, csvCell,
-  createRng, SHIFTS,
+  createRng, unavoidableGap, SHIFTS,
 } from '../src/roster.js';
 
 const START = '2026-11-02'; // a Monday
@@ -261,8 +261,11 @@ describe('fairness', () => {
 
   test('a lopsided roster scores lower, and a more lopsided one lower still', () => {
     const base = Array.from({ length: 4 }, () => ['M', 'A', 'N', 'O', 'M', 'N', 'A']);
-    const oneExtraNight = base.map((row) => [...row]);
-    oneExtraNight[0][3] = 'N'; // person 01 works their Thursday off as a Night
+    // Person 01 does 4 nights while the others do 2. (One extra night would not count:
+    // 9 nights among 4 people means someone must do 3.)
+    const twoExtraNights = base.map((row) => [...row]);
+    twoExtraNights[0][0] = 'N';
+    twoExtraNights[0][3] = 'N';
     const allNightsOnOne = [
       ['N', 'N', 'N', 'N', 'N', 'N', 'N'],
       ['M', 'A', 'O', 'O', 'M', 'A', 'M'],
@@ -270,12 +273,31 @@ describe('fairness', () => {
       ['O', 'O', 'A', 'M', 'A', 'A', 'M'],
     ];
     const even = fairness(four, base).exactScore;
-    const a = fairness(four, oneExtraNight).exactScore;
+    const a = fairness(four, twoExtraNights).exactScore;
     const b = fairness(four, allNightsOnOne).exactScore;
     assert.equal(even, 100);
     assert.ok(a < even, `${a} should be below ${even}`);
     assert.ok(b < a, `${b} should be below ${a}`);
     assert.equal(fairness(four, allNightsOnOne).parts.nights, 0);
+  });
+
+  test('a split that is as even as whole shifts allow scores 100', () => {
+    const three = { people: team(3), startDate: START, weeks: 1, rules: { minPerShift: { M: 0, A: 0, N: 0 } } };
+    // 4 nights and 7 shifts among 3 people cannot split evenly; 2-1-1 and 3-2-2 is the best possible.
+    const best = [
+      ['N', 'O', 'N', 'O', 'M', 'O', 'O'],
+      ['O', 'N', 'O', 'O', 'M', 'O', 'O'],
+      ['O', 'O', 'O', 'N', 'M', 'O', 'O'],
+    ];
+    assert.equal(fairness(three, best).score, 100);
+    const worse = [
+      ['N', 'O', 'N', 'N', 'M', 'O', 'O'],
+      ['O', 'N', 'O', 'O', 'M', 'O', 'O'],
+      ['O', 'O', 'O', 'O', 'M', 'A', 'O'],
+    ];
+    assert.ok(fairness(three, worse).exactScore < 100);
+    assert.ok(Math.abs(unavoidableGap(4, [4 / 3, 4 / 3, 4 / 3]) - 4 / 3) < 1e-9);
+    assert.equal(unavoidableGap(6, [2, 2, 2]), 0);
   });
 
   test('the score stays between 0 and 100', () => {
