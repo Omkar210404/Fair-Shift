@@ -1,0 +1,14 @@
+{
+  "name": "fairshift",
+  "version": "0.1.0",
+  "description": "A fair shift roster planner for factory and shop-floor teams.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

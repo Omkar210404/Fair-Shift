@@ -1,0 +1,17 @@
+# Local tool settings
+.claude/
+.vscode/
+.idea/
+
+# Node (the app has no dependencies, but keep these out if someone installs any)
+node_modules/
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs and scratch
+*.log
+*.tmp
