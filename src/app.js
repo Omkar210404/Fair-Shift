@@ -672,6 +672,11 @@ function render({ refocus = false } = {}) {
   $('regenerate').disabled = !state.roster;
   $('export-csv').disabled = !state.roster;
   $('print').disabled = !state.roster;
+  $('toolbar-note').textContent = !hasTeam
+    ? 'These unlock once there is a team. Press Load sample team, or add names in Setup and press Set team.'
+    : !state.roster
+      ? 'Press Generate to build the roster. Regenerate, Export CSV and Print unlock after that.'
+      : '';
   $('range').textContent = dayList.length
     ? `${formatDay(dayList[0])} to ${formatDay(dayList[dayList.length - 1])}, ${state.weeks} week${state.weeks === 1 ? '' : 's'}, ${state.people.length} ${state.people.length === 1 ? 'person' : 'people'}${state.result ? `, seed ${state.seed}` : ''}`
     : '';
