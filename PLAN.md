@@ -3,7 +3,7 @@
 A fair shift roster planner for factory and shop-floor teams.
 Tagline: "Rosters your whole team can call fair."
 
-Status: approved on 2026-10-14 with the recommendations in section 1, plus one addition: every input must be typed in a clear, stated format and applied with a button (see "Input formats" below).
+Status: built and deployed on 2026-10-14. Live at https://omkar210404.github.io/Fair-Shift/. Approved on 2026-10-14 with the recommendations in section 1, plus one addition: every input must be typed in a clear, stated format and applied with a button (see "Input formats" below).
 
 ### Input formats (added at approval)
 
